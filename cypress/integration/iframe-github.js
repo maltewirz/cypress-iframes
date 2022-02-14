@@ -1,8 +1,6 @@
 /// <reference types="cypress" />
-import { skipOn } from '@cypress/skip-test'
 
 describe('Recipe: blogs__iframes', () => {
-  skipOn('firefox', () => {
     it('do it more generically', () => {
       const getIframeBody = (identifier) => {
         return cy
@@ -33,5 +31,4 @@ describe('Recipe: blogs__iframes', () => {
         })
       })
     })
-  })
 })
