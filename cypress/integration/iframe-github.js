@@ -1,24 +1,26 @@
 /// <reference types="cypress" />
 
 describe('Recipe: blogs__iframes', () => {
-    it('do it more generically', () => {
-      const getIframeBody = (identifier) => {
+    it('Visits the iframe website and accesses the iframe within the iframe', () => {
+      const getIframeBody = (iframeSelector, elementSelectorInIframe) => {
         return cy
-        .get(identifier)
-        .its('0.contentDocument.body')
-        .should('not.be.empty')
+        .get(iframeSelector)
+        .its('0.contentDocument.body', {timeout: 30000})
+        .should((body) => {
+          expect(Cypress.$(body).has(elementSelectorInIframe).length).gt(0)
+        })
         .then(cy.wrap)
       }
 
       // Visiting the page index.html and getting iframe A
       cy.visit('index.html').contains('XHR in iframe')
-      getIframeBody('iframe[data-cy="bankid"]').as('iframeA')
+      getIframeBody('iframe[data-cy="bankid"]', 'iframe[src="https://tools.bankid.no/bankid-test/auth"]').as('iframeA')
 
       cy.get('@iframeA').within(() => {
-        getIframeBody('iframe[src="https://tools.bankid.no/bankid-test/auth"]').as('iframeB')
+        getIframeBody('iframe[src="https://tools.bankid.no/bankid-test/auth"]', 'iframe[src^="https://csfe.bankid.no/CentralServerFEJS"]').as('iframeB')
 
         cy.get('@iframeB').within(() => {
-          getIframeBody('iframe[src^="https://csfe.bankid.no/CentralServerFEJS"]').as('iframeC')
+          getIframeBody('iframe[src^="https://csfe.bankid.no/CentralServerFEJS"]', 'input[type="tel"]').as('iframeC')
 
           // Now we are in the right place and it finds the correct input element.
           // However, normal cypress command .type() fails and we have to use library cypress-real-events,
@@ -27,7 +29,8 @@ describe('Recipe: blogs__iframes', () => {
 
           // But for the button below, this library now doesn't help anymore:
           // "Failed to execute 'getComputedStyle' on 'Window': parameter 1 is not of type 'Element'."
-          cy.get('@iframeC').find('button[type="submit"]').should('be.visible').first().realClick()
+          // This was solved by using {scrollBehavior:false}.
+          cy.get('@iframeC').find('button[type="submit"]').should('be.visible').first().realClick({scrollBehavior:false})
         })
       })
     })
