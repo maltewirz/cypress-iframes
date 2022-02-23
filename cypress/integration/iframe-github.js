@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-describe('Recipe: blogs__iframes', () => {
+describe('Testing Iframe within Iframes', () => {
     it('Visits the iframe website and accesses the iframe within the iframe', () => {
       const getIframeBody = (iframeSelector, elementSelectorInIframe) => {
         return cy
